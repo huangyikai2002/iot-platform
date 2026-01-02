@@ -1,0 +1,52 @@
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"time"
+)
+
+// detectAnomaly 调用 Python AI 服务，返回是否异常
+func detectAnomaly(temp, pressure float64) (bool, error) {
+	// 1️⃣ 构造请求 body
+	body := map[string]float64{
+		"temperature": temp,
+		"pressure":    pressure,
+	}
+
+	data, _ := json.Marshal(body)
+
+	// 2️⃣ 发送 POST 请求
+	client := http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Post(
+		"http://localhost:5001/detect",
+		"application/json",
+		bytes.NewBuffer(data),
+	)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	// 3️⃣ 解析返回结果
+	var result struct {
+		Anomaly bool `json:"anomaly"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return false, err
+	}
+
+	return result.Anomaly, nil
+}
+
+// 测试调用
+// func main() {
+// 	anomaly, err := detectAnomaly(100, 5)
+// 	if err != nil {
+// 		fmt.Println("调用 AI 服务失败:", err)
+// 		return
+// 	}
+// 	fmt.Println("是否异常:", anomaly)
+// }

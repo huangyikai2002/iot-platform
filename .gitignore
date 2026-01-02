@@ -1,0 +1,31 @@
+# ===== Go =====
+*.exe
+*.exe~
+*.out
+*.test
+/bin/
+
+# IDE
+.vscode/
+.idea/
+
+# ===== Python =====
+**/__pycache__/
+**/*.py[cod]
+**/*.pyd
+**/venv/
+**/.venv/
+
+# ===== Logs =====
+python-simulator/logs/
+*.log
+
+# ===== Env & Secrets =====
+.env
+.env.*
+*.pem
+*.key
+
+# ===== OS =====
+.DS_Store
+Thumbs.db

@@ -1,0 +1,77 @@
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+	"strings"
+)
+
+// ---------- API 1：在线设备 ----------
+func getOnlineDevices(w http.ResponseWriter, r *http.Request) {
+	keys, err := rdb.Keys(ctx, "online:*").Result()
+	if err != nil {
+		http.Error(w, "Redis error", 500)
+		return
+	}
+
+	devices := make([]string, 0)
+	for _, key := range keys {
+		// online:device_xxx → device_xxx
+		devices = append(devices, strings.TrimPrefix(key, "online:"))
+	}
+
+	resp := map[string]interface{}{
+		"online_devices": devices,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+// ---------- API 2：设备最近数据 ----------
+func getLatestDeviceData(w http.ResponseWriter, r *http.Request) {
+	// URL: /devices/{id}/latest
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "invalid path", 400)
+		return
+	}
+
+	deviceID := parts[2]
+
+	row := db.QueryRow(`
+		SELECT temperature, pressure, timestamp
+		FROM device_data
+		WHERE device_id=?
+		ORDER BY id DESC
+		LIMIT 1
+	`, deviceID)
+
+	var temp, pressure float64
+	var ts int64
+	err := row.Scan(&temp, &pressure, &ts)
+	if err != nil {
+		http.Error(w, "no data", 404)
+		return
+	}
+
+	resp := map[string]interface{}{
+		"device_id":   deviceID,
+		"temperature": temp,
+		"pressure":    pressure,
+		"timestamp":   ts,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+// ---------- 启动 HTTP ----------
+func startHTTPServer() {
+	http.HandleFunc("/devices/online", getOnlineDevices)
+	http.HandleFunc("/devices/", getLatestDeviceData)
+
+	log.Println("🌐 HTTP API running on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
