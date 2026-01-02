@@ -14,7 +14,7 @@
 - EMQX：MQTT Broker
 - MySQL：数据存储
 - Redis：在线状态（TTL / ZSET）
-- Python：Flask +（你的依赖：numpy/sklearn等）
+- Python：Flask +（依赖：numpy/sklearn等）
 
 ## 端口
 - Go HTTP：`http://127.0.0.1:8080`
@@ -29,8 +29,9 @@
 ```bash
 docker compose up -d --pull never
 docker ps
-
+```
 ### 2）启动 Python AI
+```bash
 cd python-ai
 python -m venv venv
 # Windows 推荐不 activate，直接用 venv python：
@@ -38,23 +39,27 @@ python -m venv venv
 ./venv/Scripts/python.exe app.py
 
 ### 验证： curl http://127.0.0.1:5001/health
-
+```
 
 ### 3）启动 Go 服务
+```bash
 cd cmd/server
 go run .
 
 ### 验证： curl http://127.0.0.1:8080/health
+```
 
 ### 4）启动设备模拟器（单设备/批量）
+```bash
 cd python-simulator
 python -m venv venv
 ./venv/Scripts/python.exe -m pip install -r requirements.txt
 ./venv/Scripts/python.exe simulator.py
 # 或批量：
 ./venv/Scripts/python.exe batch_start.py
+```
 
 ### API示例
-# 注册设备： curl -X POST http://127.0.0.1:8080/devices/register
-# 在线设备： curl "http://127.0.0.1:8080/devices/online?ttl=10"
-# 最新数据： curl "http://127.0.0.1:8080/devices/<device_id>/latest"
+- 注册设备： curl -X POST http://127.0.0.1:8080/devices/register
+- 在线设备： curl "http://127.0.0.1:8080/devices/online?ttl=10"
+- 最新数据： curl "http://127.0.0.1:8080/devices/<device_id>/latest"
