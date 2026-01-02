@@ -60,6 +60,15 @@ python -m venv venv
 ```
 
 ### API示例
-- 注册设备： curl -X POST http://127.0.0.1:8080/devices/register
-- 在线设备： curl "http://127.0.0.1:8080/devices/online?ttl=10"
-- 最新数据： curl "http://127.0.0.1:8080/devices/<device_id>/latest"
+- 注册设备： 
+```bash
+curl -X POST http://127.0.0.1:8080/devices/register
+```
+- 在线设备： 
+```bash
+curl "http://127.0.0.1:8080/devices/online?ttl=10"
+```
+- 最新数据： 
+```bash
+curl "http://127.0.0.1:8080/devices/<device_id>/latest"
+```
